@@ -1,0 +1,17 @@
+Project go_micro_auth {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # Auth service Database
+  '''
+}
+
+Table user as U {
+  id int [pk]
+  email varchar [unique, not null]
+  first_name varchar 
+  last_name varchar 
+  password varchar [not null]
+  active int [not null]
+  updated_at timestamptz [not null, default: '0001-01-01']
+  created_at timestamptz [not null, default: `now()`]
+}
