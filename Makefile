@@ -1,7 +1,7 @@
 .PHONY: *
 
 ENV = dev
-DB_URL = "postgresql://postgres:postgres@localhost:5432/simple_bank?sslmode=disable"
+DB_URL = "postgresql://postgres:postgres@localhost:5432/go_micro?sslmode=disable"
 
 docker_up:
 	limactl start docker
@@ -13,12 +13,27 @@ postgres_up:
 	docker start ${ENV}-postgres \
 	|| docker run --name ${ENV}-postgres \
 	-e POSTGRES_PASSWORD=postgres \
-	-e POSTGRES_DB=simple_bank \
+	-e POSTGRES_DB=go_micro \
 	-p 5432:5432 -d postgres
 
 postgres_down:
 	docker stop ${ENV}-postgres
 	docker rm ${ENV}-postgres
+
+new_migration:
+	migrate create -ext sql -dir data/migration -seq ${name}
+
+migrate_up:
+	migrate -path data/migration -database ${DB_URL} -verbose up
+
+migrate_up1:
+	migrate -path data/migration -database ${DB_URL} -verbose up 1
+
+migrate_down:
+	migrate -path data/migration -database ${DB_URL} -verbose down
+
+migrate_down1:
+	migrate -path data/migration -database ${DB_URL} -verbose down 1
 
 sqlc:
 	sqlc generate
