@@ -11,40 +11,40 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const delete = `-- name: Delete :exec
+const deleteUser = `-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) Delete(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, delete, id)
+func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
-const deleteByID = `-- name: DeleteByID :exec
+const deleteUserByID = `-- name: DeleteUserByID :exec
 DELETE FROM users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteByID(ctx context.Context, id int32) error {
-	_, err := q.db.Exec(ctx, deleteByID, id)
+func (q *Queries) DeleteUserByID(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteUserByID, id)
 	return err
 }
 
-const getAll = `-- name: GetAll :many
+const getAllUsers = `-- name: GetAllUsers :many
 SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
 ORDER by last_name
 LIMIT $1
 OFFSET $2
 `
 
-type GetAllParams struct {
+type GetAllUsersParams struct {
 	Limit  int32 `json:"limit"`
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) GetAll(ctx context.Context, arg GetAllParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, getAll, arg.Limit, arg.Offset)
+func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, getAllUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -72,34 +72,13 @@ func (q *Queries) GetAll(ctx context.Context, arg GetAllParams) ([]User, error) 
 	return items, nil
 }
 
-const getByEmail = `-- name: GetByEmail :one
-SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
-WHERE email = $1 LIMIT 1
-`
-
-func (q *Queries) GetByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRow(ctx, getByEmail, email)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.FirstName,
-		&i.LastName,
-		&i.Password,
-		&i.Active,
-		&i.UpdatedAt,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getOne = `-- name: GetOne :one
+const getOneUser = `-- name: GetOneUser :one
 SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetOne(ctx context.Context, id int32) (User, error) {
-	row := q.db.QueryRow(ctx, getOne, id)
+func (q *Queries) GetOneUser(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, getOneUser, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -114,7 +93,28 @@ func (q *Queries) GetOne(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
-const insert = `-- name: Insert :one
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
+WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Password,
+		&i.Active,
+		&i.UpdatedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertUser = `-- name: InsertUser :one
 INSERT INTO users (
   email, first_name, last_name, password, active
 ) VALUES (
@@ -123,7 +123,7 @@ INSERT INTO users (
 RETURNING id, email, first_name, last_name, password, active, updated_at, created_at
 `
 
-type InsertParams struct {
+type InsertUserParams struct {
 	Email     string      `json:"email"`
 	FirstName pgtype.Text `json:"first_name"`
 	LastName  pgtype.Text `json:"last_name"`
@@ -131,8 +131,8 @@ type InsertParams struct {
 	Active    int32       `json:"active"`
 }
 
-func (q *Queries) Insert(ctx context.Context, arg InsertParams) (User, error) {
-	row := q.db.QueryRow(ctx, insert,
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, insertUser,
 		arg.Email,
 		arg.FirstName,
 		arg.LastName,
@@ -153,7 +153,7 @@ func (q *Queries) Insert(ctx context.Context, arg InsertParams) (User, error) {
 	return i, err
 }
 
-const update = `-- name: Update :one
+const updateUser = `-- name: UpdateUser :one
 UPDATE users 
 SET 
   first_name = COALESCE($1, first_name),
@@ -166,7 +166,7 @@ WHERE
 RETURNING id, email, first_name, last_name, password, active, updated_at, created_at
 `
 
-type UpdateParams struct {
+type UpdateUserParams struct {
 	FirstName pgtype.Text        `json:"first_name"`
 	LastName  pgtype.Text        `json:"last_name"`
 	Email     pgtype.Text        `json:"email"`
@@ -175,8 +175,8 @@ type UpdateParams struct {
 	ID        int32              `json:"id"`
 }
 
-func (q *Queries) Update(ctx context.Context, arg UpdateParams) (User, error) {
-	row := q.db.QueryRow(ctx, update,
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateUser,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,

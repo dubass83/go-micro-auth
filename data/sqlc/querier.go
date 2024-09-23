@@ -9,13 +9,13 @@ import (
 )
 
 type Querier interface {
-	Delete(ctx context.Context, id int32) error
-	DeleteByID(ctx context.Context, id int32) error
-	GetAll(ctx context.Context, arg GetAllParams) ([]User, error)
-	GetByEmail(ctx context.Context, email string) (User, error)
-	GetOne(ctx context.Context, id int32) (User, error)
-	Insert(ctx context.Context, arg InsertParams) (User, error)
-	Update(ctx context.Context, arg UpdateParams) (User, error)
+	DeleteUser(ctx context.Context, id int32) error
+	DeleteUserByID(ctx context.Context, id int32) error
+	GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]User, error)
+	GetOneUser(ctx context.Context, id int32) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
+	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

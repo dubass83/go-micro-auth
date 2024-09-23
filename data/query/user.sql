@@ -1,4 +1,4 @@
--- name: Insert :one
+-- name: InsertUser :one
 INSERT INTO users (
   email, first_name, last_name, password, active
 ) VALUES (
@@ -6,21 +6,21 @@ INSERT INTO users (
 )
 RETURNING *;
 
--- name: GetByEmail :one
+-- name: GetUserByEmail :one
 SELECT * FROM users
 WHERE email = $1 LIMIT 1;
 
--- name: GetOne :one
+-- name: GetOneUser :one
 SELECT * FROM users
 WHERE id = $1 LIMIT 1;
 
--- name: GetAll :many
+-- name: GetAllUsers :many
 SELECT * FROM users
 ORDER by last_name
 LIMIT $1
 OFFSET $2;
 
--- name: Update :one
+-- name: UpdateUser :one
 UPDATE users 
 SET 
   first_name = COALESCE(sqlc.narg('first_name'), first_name),
@@ -32,11 +32,11 @@ WHERE
   id = sqlc.arg('id')
 RETURNING *;
 
--- name: Delete :exec
+-- name: DeleteUser :exec
 DELETE FROM users
 WHERE id = $1; 
 
--- name: DeleteByID :exec
+-- name: DeleteUserByID :exec
 DELETE FROM users
 WHERE id = $1;
 
