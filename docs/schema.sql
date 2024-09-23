@@ -1,8 +1,8 @@
 -- SQL dump generated using DBML (dbml.dbdiagram.io)
 -- Database: PostgreSQL
--- Generated at: 2024-09-02T18:48:51.328Z
+-- Generated at: 2024-09-23T16:21:47.201Z
 
-CREATE TABLE "user" (
+CREATE TABLE "users" (
   "id" int PRIMARY KEY,
   "email" varchar UNIQUE NOT NULL,
   "first_name" varchar,

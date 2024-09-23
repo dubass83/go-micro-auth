@@ -5,7 +5,7 @@ Project go_micro_auth {
   '''
 }
 
-Table user as U {
+Table users as U {
   id int [pk]
   email varchar [unique, not null]
   first_name varchar 

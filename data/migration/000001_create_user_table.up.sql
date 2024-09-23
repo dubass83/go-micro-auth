@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE "users" (
   "id" int PRIMARY KEY,
   "email" varchar UNIQUE NOT NULL,
   "first_name" varchar,
