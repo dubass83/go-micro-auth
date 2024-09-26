@@ -27,6 +27,7 @@ SET
   last_name = COALESCE(sqlc.narg('last_name'), last_name),
   email = COALESCE(sqlc.narg('email'), email),
   active = COALESCE(sqlc.narg('active'), active),
+  password = COALESCE(sqlc.narg('password'), password),
   updated_at = COALESCE(sqlc.narg('updated_at'), updated_at)
 WHERE 
   id = sqlc.arg('id')

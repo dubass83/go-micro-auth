@@ -160,9 +160,10 @@ SET
   last_name = COALESCE($2, last_name),
   email = COALESCE($3, email),
   active = COALESCE($4, active),
-  updated_at = COALESCE($5, updated_at)
+  password = COALESCE($5, password),
+  updated_at = COALESCE($6, updated_at)
 WHERE 
-  id = $6
+  id = $7
 RETURNING id, email, first_name, last_name, password, active, updated_at, created_at
 `
 
@@ -171,6 +172,7 @@ type UpdateUserParams struct {
 	LastName  pgtype.Text        `json:"last_name"`
 	Email     pgtype.Text        `json:"email"`
 	Active    pgtype.Int4        `json:"active"`
+	Password  pgtype.Text        `json:"password"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 	ID        int32              `json:"id"`
 }
@@ -181,6 +183,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.LastName,
 		arg.Email,
 		arg.Active,
+		arg.Password,
 		arg.UpdatedAt,
 		arg.ID,
 	)
