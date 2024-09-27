@@ -1,6 +1,6 @@
 .PHONY: *
 
-ENV = dev
+ENV = devel
 DB_URL = "postgresql://postgres:postgres@localhost:5432/go_micro?sslmode=disable"
 
 docker_up:
