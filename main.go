@@ -31,8 +31,7 @@ func main() {
 	}
 	if conf.Enviroment == "devel" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-		log.Debug().
-			Msgf("config values: %+v", conf)
+		// log.Debug().Msgf("config values: %+v", conf)
 	}
 
 	// ctx, stop := signal.NotifyContext(context.Background(), interaptSignals...)
