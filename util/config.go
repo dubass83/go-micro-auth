@@ -21,16 +21,6 @@ type Config struct {
 	HTTPAddressString       string        `mapstructure:"HTTP_ADDRESS_STRING"`
 }
 
-// addDefaults define defaults value for config
-// func addDefaults(v *viper.Viper) {
-// 	v.SetDefault("DBPoolMaxConns", 25)
-// 	v.SetDefault("DBPoolMinConns", 0)
-// 	v.SetDefault("DBPoolMaxConnLifetime", time.Hour)
-// 	v.SetDefault("DBPoolMaxConnIdleTime", time.Minute*30)
-// 	v.SetDefault("DBPoolHealthCheckPeriod", time.Minute)
-// 	v.SetDefault("DBPoolConnectTimeout", time.Second*5)
-// }
-
 // LoadConfig read configuration from file conf.env or enviroment variables
 func LoadConfig(configPath string) (config Config, err error) {
 	v := viper.New()

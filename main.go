@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/dubass83/go-micro-auth/cmd/api"
 	data "github.com/dubass83/go-micro-auth/data/sqlc"
@@ -57,13 +58,24 @@ func PoolConfig(conf util.Config) *pgxpool.Config {
 			Err(err).
 			Msg("failed to create a config")
 	}
-
-	dbConfig.MaxConns = conf.DBPoolMaxConns
-	dbConfig.MinConns = conf.DBPoolMinConns
-	dbConfig.MaxConnLifetime = conf.DBPoolMaxConnLifetime
-	dbConfig.MaxConnIdleTime = conf.DBPoolMaxConnIdleTime
-	dbConfig.HealthCheckPeriod = conf.DBPoolHealthCheckPeriod
-	dbConfig.ConnConfig.ConnectTimeout = conf.DBPoolConnectTimeout
+	if conf.DBPoolMaxConns != 0 {
+		dbConfig.MaxConns = conf.DBPoolMaxConns
+	}
+	if conf.DBPoolMinConns != 0 {
+		dbConfig.MinConns = conf.DBPoolMinConns
+	}
+	if conf.DBPoolMaxConnLifetime != time.Second*0 {
+		dbConfig.MaxConnLifetime = conf.DBPoolMaxConnLifetime
+	}
+	if conf.DBPoolMaxConnIdleTime != time.Second*0 {
+		dbConfig.MaxConnIdleTime = conf.DBPoolMaxConnIdleTime
+	}
+	if conf.DBPoolHealthCheckPeriod != time.Second*0 {
+		dbConfig.HealthCheckPeriod = conf.DBPoolHealthCheckPeriod
+	}
+	if conf.DBPoolConnectTimeout != time.Second*0 {
+		dbConfig.ConnConfig.ConnectTimeout = conf.DBPoolConnectTimeout
+	}
 
 	return dbConfig
 }
