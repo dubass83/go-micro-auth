@@ -4,8 +4,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/dubass83/go-micro-auth/cmd/api"
 	data "github.com/dubass83/go-micro-auth/data/sqlc"
@@ -18,11 +16,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var interaptSignals = []os.Signal{
-	os.Interrupt,
-	syscall.SIGTERM,
-	syscall.SIGINT,
-}
+// var interaptSignals = []os.Signal{
+// 	os.Interrupt,
+// 	syscall.SIGTERM,
+// 	syscall.SIGINT,
+// }
 
 func main() {
 	conf, err := util.LoadConfig(".")
@@ -33,12 +31,14 @@ func main() {
 	}
 	if conf.Enviroment == "devel" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		log.Debug().
+			Msgf("config values: %+v", conf)
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), interaptSignals...)
-	defer stop()
+	// ctx, stop := signal.NotifyContext(context.Background(), interaptSignals...)
+	// defer stop()
 
-	connPool, err := pgxpool.New(ctx, conf.DBSource)
+	connPool, err := pgxpool.NewWithConfig(context.Background(), PoolConfig(conf))
 	if err != nil {
 		log.Fatal().
 			Err(err).
@@ -46,17 +46,27 @@ func main() {
 	}
 	store := data.NewStore(connPool)
 	runDbMigration(conf.MigrationURL, conf.DBSource)
-	// runChiServer(conf, store)
-	s := api.CreateNewServer(conf, store)
-	s.ConfigureCORS()
-	s.AddMiddleware()
-	s.MountHandlers()
-	log.Info().
-		Msgf("start listening on the port %s\n", s.Config.HTTPAddressString)
-	err = http.ListenAndServe(s.Config.HTTPAddressString, s.Router)
+	runChiServer(conf, store)
+}
+
+// PoolConfig create config for db connection pool
+func PoolConfig(conf util.Config) *pgxpool.Config {
+
+	dbConfig, err := pgxpool.ParseConfig(conf.DBSource)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().
+			Err(err).
+			Msg("failed to create a config")
 	}
+
+	dbConfig.MaxConns = conf.DBPoolMaxConns
+	dbConfig.MinConns = conf.DBPoolMinConns
+	dbConfig.MaxConnLifetime = conf.DBPoolMaxConnLifetime
+	dbConfig.MaxConnIdleTime = conf.DBPoolMaxConnIdleTime
+	dbConfig.HealthCheckPeriod = conf.DBPoolHealthCheckPeriod
+	dbConfig.ConnConfig.ConnectTimeout = conf.DBPoolConnectTimeout
+
+	return dbConfig
 }
 
 // runDbMigration run db migration from file to db
