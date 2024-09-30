@@ -12,6 +12,9 @@ docker_down:
 docker_build:
 	docker build -t go-micro-auth -f Dockerfile .
 
+docker_build_simple: build
+	docker build -t go-micro-auth -f Dockerfile.simple .
+
 postgres_up:
 	docker start ${ENV}-postgres \
 	|| docker run --name ${ENV}-postgres \
