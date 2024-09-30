@@ -38,7 +38,7 @@ func main() {
 	// ctx, stop := signal.NotifyContext(context.Background(), interaptSignals...)
 	// defer stop()
 
-	connPool, err := pgxpool.NewWithConfig(context.Background(), PoolConfig(conf))
+	connPool, err := pgxpool.NewWithConfig(context.Background(), poolConfig(conf))
 	if err != nil {
 		log.Fatal().
 			Err(err).
@@ -50,7 +50,7 @@ func main() {
 }
 
 // PoolConfig create config for db connection pool
-func PoolConfig(conf util.Config) *pgxpool.Config {
+func poolConfig(conf util.Config) *pgxpool.Config {
 
 	dbConfig, err := pgxpool.ParseConfig(conf.DBSource)
 	if err != nil {
