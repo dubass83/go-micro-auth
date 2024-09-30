@@ -9,6 +9,9 @@ docker_up:
 docker_down: 
 	limactl stop docker
 
+docker_build:
+	docker build -t go-micro-auth -f Dockerfile .
+
 postgres_up:
 	docker start ${ENV}-postgres \
 	|| docker run --name ${ENV}-postgres \
@@ -49,3 +52,6 @@ test:
 
 server:
 	go run main.go
+
+build:
+	go build -o main main.go
