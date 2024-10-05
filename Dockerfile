@@ -8,6 +8,7 @@ FROM alpine:3.20
 
 WORKDIR /app
 COPY --from=builder /app/main /app/
+COPY --from=builder /app/data/migration /app/migration
 COPY --from=builder /app/conf.env /app/conf.env
 EXPOSE 8080
 
