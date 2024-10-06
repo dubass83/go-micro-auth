@@ -1,12 +1,45 @@
 package api
 
-import "net/http"
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/dubass83/go-micro-auth/util"
+)
 
 // Broker api Handler
-func Test(w http.ResponseWriter, r *http.Request) {
+func (s *Server) Authenticate(w http.ResponseWriter, r *http.Request) {
+	var requestPayload struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := readJSON(w, r, &requestPayload)
+	if err != nil {
+		errorJSON(w, err, http.StatusBadRequest)
+		return
+	}
+	// get user from database by email
+	user, err := s.Db.GetUserByEmail(context.Background(), requestPayload.Email)
+	if err != nil {
+		errorJSON(w, errors.New("invalid username or password"), http.StatusBadRequest)
+		return
+	}
+	// compare password and hash from database
+	err = util.CheckPassword(requestPayload.Password, user.Password)
+	if err != nil {
+		errorJSON(w, errors.New("invalid username or password"), http.StatusBadRequest)
+		return
+	}
+
+	resultStr := fmt.Sprintf("password is valid for user: %s", user.Email)
+
 	payload := jsonResponse{
 		Error:   false,
-		Massage: "Hello from Auth!",
+		Massage: resultStr,
+		Data:    user,
 	}
 
 	_ = writeJSON(w, http.StatusAccepted, payload)
