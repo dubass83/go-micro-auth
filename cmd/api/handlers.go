@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/dubass83/go-micro-auth/util"
+	"github.com/rs/zerolog/log"
 )
 
 // Broker api Handler
@@ -36,11 +37,11 @@ func (s *Server) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	resultStr := fmt.Sprintf("password is valid for user: %s", user.Email)
 
-	payload := jsonResponse{
+	payload := &jsonResponse{
 		Error:   false,
 		Massage: resultStr,
 		Data:    user,
 	}
-
+	log.Debug().Msgf("payload: %+v", payload)
 	_ = writeJSON(w, http.StatusAccepted, payload)
 }
