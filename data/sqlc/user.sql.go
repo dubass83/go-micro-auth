@@ -32,7 +32,7 @@ func (q *Queries) DeleteUserByID(ctx context.Context, id int32) error {
 }
 
 const getAllUsers = `-- name: GetAllUsers :many
-SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
+SELECT id, email, first_name, last_name, password, user_active, updated_at, created_at FROM users
 ORDER by last_name
 LIMIT $1
 OFFSET $2
@@ -58,7 +58,7 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 			&i.FirstName,
 			&i.LastName,
 			&i.Password,
-			&i.Active,
+			&i.UserActive,
 			&i.UpdatedAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -73,7 +73,7 @@ func (q *Queries) GetAllUsers(ctx context.Context, arg GetAllUsersParams) ([]Use
 }
 
 const getOneUser = `-- name: GetOneUser :one
-SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
+SELECT id, email, first_name, last_name, password, user_active, updated_at, created_at FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -86,7 +86,7 @@ func (q *Queries) GetOneUser(ctx context.Context, id int32) (User, error) {
 		&i.FirstName,
 		&i.LastName,
 		&i.Password,
-		&i.Active,
+		&i.UserActive,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -94,7 +94,7 @@ func (q *Queries) GetOneUser(ctx context.Context, id int32) (User, error) {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, first_name, last_name, password, active, updated_at, created_at FROM users
+SELECT id, email, first_name, last_name, password, user_active, updated_at, created_at FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -107,7 +107,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.FirstName,
 		&i.LastName,
 		&i.Password,
-		&i.Active,
+		&i.UserActive,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -116,19 +116,19 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 
 const insertUser = `-- name: InsertUser :one
 INSERT INTO users (
-  email, first_name, last_name, password, active
+  email, first_name, last_name, password, user_active
 ) VALUES (
   $1, $2, $3, $4, $5
 )
-RETURNING id, email, first_name, last_name, password, active, updated_at, created_at
+RETURNING id, email, first_name, last_name, password, user_active, updated_at, created_at
 `
 
 type InsertUserParams struct {
-	Email     string      `json:"email"`
-	FirstName pgtype.Text `json:"first_name"`
-	LastName  pgtype.Text `json:"last_name"`
-	Password  string      `json:"password"`
-	Active    int32       `json:"active"`
+	Email      string      `json:"email"`
+	FirstName  pgtype.Text `json:"first_name"`
+	LastName   pgtype.Text `json:"last_name"`
+	Password   string      `json:"password"`
+	UserActive int32       `json:"user_active"`
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
@@ -137,7 +137,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		arg.FirstName,
 		arg.LastName,
 		arg.Password,
-		arg.Active,
+		arg.UserActive,
 	)
 	var i User
 	err := row.Scan(
@@ -146,7 +146,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.FirstName,
 		&i.LastName,
 		&i.Password,
-		&i.Active,
+		&i.UserActive,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)
@@ -159,22 +159,22 @@ SET
   first_name = COALESCE($1, first_name),
   last_name = COALESCE($2, last_name),
   email = COALESCE($3, email),
-  active = COALESCE($4, active),
+  user_active = COALESCE($4, user_active),
   password = COALESCE($5, password),
   updated_at = COALESCE($6, updated_at)
 WHERE 
   id = $7
-RETURNING id, email, first_name, last_name, password, active, updated_at, created_at
+RETURNING id, email, first_name, last_name, password, user_active, updated_at, created_at
 `
 
 type UpdateUserParams struct {
-	FirstName pgtype.Text        `json:"first_name"`
-	LastName  pgtype.Text        `json:"last_name"`
-	Email     pgtype.Text        `json:"email"`
-	Active    pgtype.Int4        `json:"active"`
-	Password  pgtype.Text        `json:"password"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	ID        int32              `json:"id"`
+	FirstName  pgtype.Text        `json:"first_name"`
+	LastName   pgtype.Text        `json:"last_name"`
+	Email      pgtype.Text        `json:"email"`
+	UserActive pgtype.Int4        `json:"user_active"`
+	Password   pgtype.Text        `json:"password"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+	ID         int32              `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
@@ -182,7 +182,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
-		arg.Active,
+		arg.UserActive,
 		arg.Password,
 		arg.UpdatedAt,
 		arg.ID,
@@ -194,7 +194,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.FirstName,
 		&i.LastName,
 		&i.Password,
-		&i.Active,
+		&i.UserActive,
 		&i.UpdatedAt,
 		&i.CreatedAt,
 	)

@@ -1,6 +1,6 @@
 -- name: InsertUser :one
 INSERT INTO users (
-  email, first_name, last_name, password, active
+  email, first_name, last_name, password, user_active
 ) VALUES (
   $1, $2, $3, $4, $5
 )
@@ -26,7 +26,7 @@ SET
   first_name = COALESCE(sqlc.narg('first_name'), first_name),
   last_name = COALESCE(sqlc.narg('last_name'), last_name),
   email = COALESCE(sqlc.narg('email'), email),
-  active = COALESCE(sqlc.narg('active'), active),
+  user_active = COALESCE(sqlc.narg('user_active'), user_active),
   password = COALESCE(sqlc.narg('password'), password),
   updated_at = COALESCE(sqlc.narg('updated_at'), updated_at)
 WHERE 

@@ -6,12 +6,12 @@ Project go_micro_auth {
 }
 
 Table users as U {
-  id int [pk]
+  id int [pk,increment]
   email varchar [unique, not null]
   first_name varchar 
   last_name varchar 
   password varchar [not null]
-  active int [not null]
+  user_active int [not null]
   updated_at timestamptz [not null, default: '0001-01-01']
   created_at timestamptz [not null, default: `now()`]
 }
