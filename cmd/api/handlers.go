@@ -37,6 +37,17 @@ func (s *Server) Authenticate(w http.ResponseWriter, r *http.Request) {
 
 	resultStr := fmt.Sprintf("password is valid for user: %s", user.Email)
 
+	logEntry := LogEntry{
+		Name: "Success login",
+		Data: resultStr,
+	}
+
+	err = logRequest(logEntry, s.Config.LogService)
+	if err != nil {
+		errorJSON(w, errors.New("failed send a log request to the logger service"))
+		return
+	}
+
 	payload := &jsonResponse{
 		Error:   false,
 		Massage: resultStr,

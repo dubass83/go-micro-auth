@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -11,6 +13,11 @@ type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Massage string `json:"massage"`
 	Data    any    `json:"data,omitempty"`
+}
+
+type LogEntry struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
 }
 
 // readJSON reads from request body 1 Mb size and save to the data
@@ -63,4 +70,22 @@ func errorJSON(w http.ResponseWriter, err error, status ...int) error {
 	}
 
 	return writeJSON(w, statusCode, payload)
+}
+
+func logRequest(logEntry LogEntry, logService string) error {
+
+	jsonData, _ := json.MarshalIndent(logEntry, "", "\t")
+	logServiceURL := fmt.Sprintf("%s/log", logService)
+
+	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	_, err = client.Do(request)
+	if err != nil {
+		return err
+	}
+	return nil
 }

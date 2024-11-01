@@ -19,6 +19,7 @@ type Config struct {
 	DBPoolConnectTimeout    time.Duration `mapstructure:"DB_POOL_CONNECT_TIMEOUT"`
 	MigrationURL            string        `mapstructure:"MIGRATION_URL"`
 	HTTPAddressString       string        `mapstructure:"HTTP_ADDRESS_STRING"`
+	LogService              string        `mapstructure:"LOG_SERVICE"`
 }
 
 // LoadConfig read configuration from file conf.env or enviroment variables
