@@ -50,6 +50,9 @@ db_docs:
 db_schema:
 	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
 
+mock:
+	mockgen -package mockdb -destination data/mock/store.go github.com/dubass83/go-micro-auth/data/sqlc Store
+
 test:
 	go test -v -cover -count=1 -short ./...
 
