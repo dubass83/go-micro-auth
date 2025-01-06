@@ -11,11 +11,13 @@ import (
 func NewTestServer(t *testing.T, store data.Store) *Server {
 	config := util.Config{
 		LogService: "localhost:8080",
-		Enviroment: "test",
+		Enviroment: "devel",
 	}
 	server := CreateNewServer(config, store)
 	// require.NoError(t, err)
-
+	server.ConfigureCORS()
+	server.AddMiddleware()
+	server.MountHandlers()
 	return server
 }
 

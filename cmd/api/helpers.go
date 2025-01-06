@@ -72,7 +72,7 @@ func errorJSON(w http.ResponseWriter, err error, status ...int) error {
 	return writeJSON(w, statusCode, payload)
 }
 
-func logRequest(logEntry LogEntry, logService string) error {
+func (s *Server) logRequest(logEntry LogEntry, logService string) error {
 
 	jsonData, _ := json.MarshalIndent(logEntry, "", "\t")
 	logServiceURL := fmt.Sprintf("%s/log", logService)
@@ -82,8 +82,7 @@ func logRequest(logEntry LogEntry, logService string) error {
 		return err
 	}
 
-	client := &http.Client{}
-	_, err = client.Do(request)
+	_, err = s.Client.Do(request)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	data "github.com/dubass83/go-micro-auth/data/sqlc"
 	"github.com/dubass83/go-micro-auth/util"
 	"github.com/go-chi/chi"
@@ -12,6 +14,7 @@ type Server struct {
 	Router *chi.Mux
 	Db     data.Store
 	Config util.Config
+	Client *http.Client
 }
 
 func CreateNewServer(config util.Config, store data.Store) *Server {
@@ -19,6 +22,7 @@ func CreateNewServer(config util.Config, store data.Store) *Server {
 		Router: chi.NewRouter(),
 		Db:     store,
 		Config: config,
+		Client: &http.Client{},
 	}
 	return s
 }

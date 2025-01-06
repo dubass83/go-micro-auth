@@ -42,7 +42,7 @@ func (s *Server) Authenticate(w http.ResponseWriter, r *http.Request) {
 		Data: resultStr,
 	}
 
-	err = logRequest(logEntry, s.Config.LogService)
+	err = s.logRequest(logEntry, s.Config.LogService)
 	if err != nil {
 		errorJSON(w, errors.New("failed send a log request to the logger service"))
 		return

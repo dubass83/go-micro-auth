@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,13 +17,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type RoundTripFunc func(rec *http.Request) *http.Response
+
+func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return f(req), nil
+}
+
+func NewTestClient(fn RoundTripFunc) *http.Client {
+	return &http.Client{
+		Transport: fn,
+	}
+}
+
 func TestAuthenticate(t *testing.T) {
 	user, password := randomUser()
+	client := NewTestClient(func(req *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(bytes.NewBufferString(`{"error":false,"massage":"some dummy message"}`)),
+			Header:     make(http.Header),
+		}
+	})
 
 	testCases := []struct {
 		name          string
 		body          map[string]interface{}
 		buildStubs    func(store *mockdb.MockStore)
+		client        *http.Client
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
@@ -36,8 +57,9 @@ func TestAuthenticate(t *testing.T) {
 					Times(1).
 					Return(user, nil)
 			},
+			client: client,
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				require.Equal(t, http.StatusOK, recorder.Code)
+				require.Equal(t, http.StatusAccepted, recorder.Code)
 			},
 		},
 	}
@@ -56,6 +78,7 @@ func TestAuthenticate(t *testing.T) {
 
 			// start test server and send request
 			server := NewTestServer(t, store)
+			server.Client = tc.client
 			recorder := httptest.NewRecorder()
 
 			url := "/authenticate"
