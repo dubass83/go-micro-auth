@@ -82,9 +82,15 @@ func (s *Server) logRequest(logEntry LogEntry, logService string) error {
 		return err
 	}
 
-	_, err = s.Client.Do(request)
+	resp, err := s.Client.Do(request)
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode > 300 {
+		return errors.New("error calling logger service")
+	}
+
 	return nil
 }

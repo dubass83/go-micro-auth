@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -31,10 +32,16 @@ func NewTestClient(fn RoundTripFunc) *http.Client {
 
 func TestAuthenticate(t *testing.T) {
 	user, password := randomUser()
-	client := NewTestClient(func(req *http.Request) *http.Response {
+	clientOk := NewTestClient(func(req *http.Request) *http.Response {
 		return &http.Response{
 			StatusCode: http.StatusOK,
 			Body:       io.NopCloser(bytes.NewBufferString(`{"error":false,"massage":"some dummy message"}`)),
+			Header:     make(http.Header),
+		}
+	})
+	clientBad := NewTestClient(func(req *http.Request) *http.Response {
+		return &http.Response{
+			StatusCode: http.StatusBadRequest,
 			Header:     make(http.Header),
 		}
 	})
@@ -57,9 +64,41 @@ func TestAuthenticate(t *testing.T) {
 					Times(1).
 					Return(user, nil)
 			},
-			client: client,
+			client: clientOk,
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusAccepted, recorder.Code)
+			},
+		},
+		{
+			name: "BadParams",
+			body: map[string]interface{}{
+				"name": 1,
+				"pass": 2,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(data.User{}, errors.New("some error"))
+			},
+			client: clientOk,
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "FailedToSentLogs",
+			body: map[string]interface{}{
+				"email":    user.Email,
+				"password": password,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), user.Email).
+					Times(1).
+					Return(user, nil)
+			},
+			client: clientBad,
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}
